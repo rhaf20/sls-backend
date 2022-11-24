@@ -1,0 +1,6 @@
+export enum DeviceStatus {
+	REGISTERED = 'REGISTERED',
+	ASSIGNED = 'ASSIGNED',
+	ACTIVE = 'ACTIVE',
+	DELETED = 'DELETED'
+}

@@ -1,0 +1,158 @@
+Resources:
+  ZYDUserTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ZYDUserTable
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: email
+          AttributeType: S
+        - AttributeName: name
+          AttributeType: S
+        - AttributeName: lastName
+          AttributeType: S
+        - AttributeName: email
+          AttributeType: S
+        - AttributeName: role
+          AttributeType: S
+        - AttributeName: company
+          AttributeType: S
+        - AttributeName: note
+          AttributeType: S
+        - AttributeName: enabled
+          AttributeType: B
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: role
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: UserEmailIndex
+          KeySchema:
+            - AttributeName: email
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+        
+  ZYDBuildingTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ZYDBuildingTable
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: name
+          AttributeType: S
+        - AttributeName: street
+          AttributeType: S
+        - AttributeName: city
+          AttributeType: S
+        - AttributeName: zipcode
+          AttributeType: S
+        - AttributeName: type
+          AttributeType: S
+        - AttributeName: enabled
+          AttributeType: B
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: name
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: StreetCityIndex
+          KeySchema:
+            - AttributeName: street
+              KeyType: HASH
+            - AttributeName: city
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+        
+  ZYDSystemTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ZYDSystemTable
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: name
+          AttributeType: S
+        - AttributeName: buildingId
+          AttributeType: S
+        - AttributeName: buildingName
+          AttributeType: S
+        - AttributeName: street
+          AttributeType: S
+        - AttributeName: city
+          AttributeType: S
+        - AttributeName: type
+          AttributeType: S
+        - AttributeName: location
+          AttributeType: S
+        - AttributeName: enabled
+          AttributeType: B
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: name
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: StreetCityIndex
+          KeySchema:
+            - AttributeName: street
+              KeyType: HASH
+            - AttributeName: city
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+  ZYDStatusTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ZYDStatusTable
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: systemId
+          AttributeType: S
+        - AttributeName: data_type
+          AttributeType: S
+        - AttributeName: status_type
+          AttributeType: S
+        - AttributeName: parameter1
+          AttributeType: S
+        - AttributeName: parameter2
+          AttributeType: N
+        - AttributeName: parameter3
+          AttributeType: N
+        - AttributeName: parameter4
+          AttributeType: N
+        - AttributeName: timestamp
+          AttributeType: N
+      KeySchema:
+        - AttributeName: systemId
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1

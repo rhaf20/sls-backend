@@ -1,0 +1,36 @@
+{
+  "name": "zyd-serverless",
+  "version": "1.0.0",
+  "description": "ZYD IoT Project Backend",
+  "scripts": {
+    "start": "rm -rf dist && tsc && sls offline --stage dev --noAuth",
+    "build": "tsc",
+    "deploy:dev": "npm run build && sls deploy --stage dev",
+    "deploy:prod": "npm run build && sls deploy --stage production",
+    "debug": "tsc -p tsconfig-test.json"
+  },
+  "dependencies": {
+    "uuid": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.51",
+    "@types/node": "^13.13.2",
+    "@types/uuid": "^3.4.6",
+    "amazon-cognito-identity-js": "^3.2.2",
+    "aws-sdk": "^2.597.0",
+    "serverless-dotenv-plugin": "^3.1.0",
+    "serverless-offline": "^6.8.0",
+    "typescript": "^3.7.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ZYDEnergy/zyd-backend"
+  },
+  "keywords": [
+    "ZYD",
+    "Yanda",
+    "IoT"
+  ],
+  "author": "baymax1234",
+  "license": "ISC"
+}

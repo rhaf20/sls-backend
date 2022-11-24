@@ -1,0 +1,75 @@
+Resources:
+  ZYDUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+      EmailVerificationMessage: Your verification code is {####}.
+      EmailVerificationSubject: Your verification code
+      MfaConfiguration: OFF
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+          RequireUppercase: true
+          TemporaryPasswordValidityDays: 7
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+        - Name: name
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+        - Name: family_name
+          AttributeDataType: String
+          Mutable: true
+          Required: false
+        # Custom attributes
+        - Name: role
+          AttributeDataType: String
+          Mutable: true
+        - Name: enabled
+          AttributeDataType: Number
+          Mutable: true
+      UsernameAttributes:
+        - email
+      UserPoolName: ZYDUserPool
+
+  ZYDWebClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: ZYDWebClient
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      GenerateSecret: false
+      UserPoolId: !Ref ZYDUserPool
+
+  # Identity Pool
+  ZYDIdPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      AllowUnauthenticatedIdentities: true
+      CognitoIdentityProviders:
+        - ClientId: !Ref ZYDWebClient
+          ProviderName: !GetAtt ZYDUserPool.ProviderName
+          ServerSideTokenCheck: true
+      IdentityPoolName: ZYDIdPool
+
+  # Authorizer
+  ZYDWebAuthorizer:
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      IdentitySource: "method.request.header.Authorization"
+      Name: ZYDWebAuthorizer
+      ProviderARNs:
+        - !GetAtt ZYDUserPool.Arn
+      RestApiId: !Ref ApiGatewayRestApi
+      Type: COGNITO_USER_POOLS
+    DependsOn:
+      - ApiGatewayRestApi

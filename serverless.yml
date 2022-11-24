@@ -1,0 +1,361 @@
+service: zyd-serverless
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: ${env:region, 'ap-southeast-2'}
+  stage: ${opt:stage}
+  stackName: zyd-serverless
+  apiName: zyd-api
+  endpointType: REGIONAL
+  logRetentionInDays: 3
+  apiGateway:
+    apiKeySourceType: HEADER
+  apiKeys:
+    - zyd-${self:provider.stage}-web-key
+  role: ZYDLambdaRole
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    noPrependStageInUrl: true
+
+functions:
+  ZYDIoTMessageHandler:
+    name: ZYDIoTMessageHandler
+    handler: dist/controllers/messageHandler.handler
+    memorySize: 128
+    events:
+      - iot:
+          name: PublishSystemDataRule
+          description: Rule to handle FromController/<groupName>/<systemId> message
+          enabled: true
+          sql: "SELECT *, topic() as topic, timestamp() as timestamp FROM 'FromController/+/+'"
+          sqlVersion: "2016-03-23"
+      - iot:
+          name: SubscribeSystemDataRule
+          description: Rule to handle ToController/<groupName>/<systemId> message
+          enabled: true
+          sql: "SELECT *, topic() as topic, timestamp() as timestamp FROM 'ToController/+/+'"
+          sqlVersion: "2016-03-23"
+
+  ZYDUserHandler:
+    name: ZYDUserHandler
+    handler: dist/controllers/userApiHandler.handler
+    memorySize: 128
+    events:
+      - http:
+          method: get
+          path: "user"
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+      - http:
+          method: get
+          path: "user/{userId}"
+          request:
+            parameters:
+              paths:
+                userId: true
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+      - http:
+          method: post
+          path: "user"
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+      - http:
+          method: put
+          path: "user/{userId}"
+          request:
+            parameters:
+              paths:
+                userId: true
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+      - http:
+          method: delete
+          path: "user/{userId}"
+          request:
+            parameters:
+              paths:
+                userId: true
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+
+  ZYDBuildingHandler:
+    name: ZYDBuildingHandler
+    handler: dist/controllers/buildingApiHandler.handler
+    memorySize: 128
+    events:
+      - http:
+          method: get
+          path: "building"
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+      - http:
+          method: get
+          path: "building/{buildingId}"
+          request:
+            parameters:
+              paths:
+                buildingId: true
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+      - http:
+          method: post
+          path: "building"
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+      - http:
+          method: put
+          path: "building/{buildingId}"
+          request:
+            parameters:
+              paths:
+                buildingId: true
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+      - http:
+          method: delete
+          path: "building/{buildingId}"
+          request:
+            parameters:
+              paths:
+                buildingId: true
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+
+  ZYDSystemHandler:
+    name: ZYDSystemHandler
+    handler: dist/controllers/systemApiHandler.handler
+    memorySize: 128
+    events:
+      - http:
+          method: get
+          path: "system"
+          request:
+            parameters:
+              paths:
+                buildingId: false
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+      - http:
+          method: get
+          path: "system/{systemId}"
+          request:
+            parameters:
+              paths:
+                systemId: true
+      - http:
+          method: post
+          path: "system"
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+      - http:
+          method: put
+          path: "system/{systemId}"
+          request:
+            parameters:
+              paths:
+                systemId: true
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+      - http:
+          method: delete
+          path: "system/{systemId}"
+          request:
+            parameters:
+              paths:
+                systemId: true
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+
+  ZYDSystemUserHandler:
+    name: ZYDSystemUserHandler
+    handler: dist/controllers/systemUserApiHandler.handler
+    memorySize: 128
+    events:
+      - http:
+          method: post
+          path: "systemUser"
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+
+  ZYDCommandHandler:
+    name: ZYDCommandHandler
+    handler: dist/controllers/commandApiHandler.handler
+    memorySize: 128
+    events:
+      - http:
+          method: get
+          path: "command"
+          request:
+            parameters:
+              querystrings:
+                start: true
+                end: true
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+      - http:
+          method: get
+          path: "command/last"
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+      - http:
+          method: post
+          path: "command"
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+
+  ZYDOptiHandler:
+    name: ZYDOptiHandler
+    handler: dist/controllers/optiApiHandler.handler
+    memorySize: 128
+    events:
+      - http:
+          method: get
+          path: "opti"
+          request:
+            parameters:
+              querystrings:
+                start: true
+                end: true
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+      - http:
+          method: get
+          path: "opti/last"
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+      - http:
+          method: post
+          path: "opti"
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+
+  ZYDSystemDataHandler:
+    name: ZYDSystemDataHandler
+    handler: dist/controllers/dataApiHandler.handler
+    memorySize: 128
+    events:
+      - http:
+          method: get
+          path: "data/process"
+          request:
+            parameters:
+              querystrings:
+                start: true
+                end: true
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+      - http:
+          method: get
+          path: "data/status"
+          request:
+            parameters:
+              querystrings:
+                start: true
+                end: true
+          cors: true
+          private: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ZYDWebAuthorizer
+
+package:
+  exclude:
+    - .git/**
+    - test/**
+    - .idea/**
+    - src/**
+    - node_modules/**
+    - package.json
+    - 'package-lock.json'
+    - tsconfig.json
+    - resources/**
+    - 'bitbucket-pipelines.yml'
+  include:
+    - dist/**
+    - node_modules/uuid/**
+
+resources:
+  # Gateway Responses
+  - ${file(resources/gateway-response.yml)}
+
+  # IAM
+  - ${file(resources/iam.yml)}
+
+  # Cognito
+  - ${file(resources/cognito.yml)}
+
+  # DynamoDB
+  - ${file(resources/dynamodb.yml)}

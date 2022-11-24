@@ -1,0 +1,24 @@
+Resources:
+  ResourceNotFoundResponse:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST,PUT,DELETE,PATCH'"
+      ResponseTemplates:
+        application/json: "{\"error\":{\"code\":404,\"message\":$context.error.messageString},\"requestId\":\"$context.requestId\"}"
+      ResponseType: RESOURCE_NOT_FOUND
+      RestApiId: !Ref ApiGatewayRestApi
+      StatusCode: '404'
+  GatewayResponseDefault4XX:
+    Type: 'AWS::ApiGateway::GatewayResponse'
+    Properties:
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST,PUT,DELETE,PATCH'"
+      ResponseTemplates:
+        application/json: "{\"error\":{\"message\":$context.error.messageString},\"requestId\":\"$context.requestId\"}"
+      ResponseType: DEFAULT_4XX
+      RestApiId: !Ref ApiGatewayRestApi

@@ -1,0 +1,25 @@
+# package directories
+node_modules
+jspm_packages
+
+# Serverless directories
+.serverless
+
+# IDE
+.idea
+
+dist
+.DS_Store
+*/.DS_Store
+
+*.js
+
+# resources
+# serverless.yml
+
+# run
+.run
+
+.env
+.env.local.development
+.env.local.production
